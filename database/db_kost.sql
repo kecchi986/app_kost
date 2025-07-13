@@ -11,6 +11,15 @@ CREATE TABLE IF NOT EXISTS tb_kamar (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Tabel tb_barang
+CREATE TABLE IF NOT EXISTS tb_barang (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    harga DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Tabel tb_penghuni
 CREATE TABLE IF NOT EXISTS tb_penghuni (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,6 +34,19 @@ CREATE TABLE IF NOT EXISTS tb_penghuni (
     FOREIGN KEY (kamar_id) REFERENCES tb_kamar(id) ON DELETE SET NULL
 );
 
+-- Tabel tb_kmr_penghuni (relasi penghuni-kamar)
+CREATE TABLE IF NOT EXISTS tb_kmr_penghuni (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_kamar INT NOT NULL,
+    id_penghuni INT NOT NULL,
+    tgl_masuk DATE NOT NULL,
+    tgl_keluar DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_kamar) REFERENCES tb_kamar(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id) ON DELETE CASCADE
+);
+
 -- Insert data contoh untuk kamar
 INSERT INTO tb_kamar (nomor, harga) VALUES 
 ('A1', 800000),
@@ -34,8 +56,23 @@ INSERT INTO tb_kamar (nomor, harga) VALUES
 ('B2', 900000),
 ('B3', 950000);
 
+-- Insert data contoh untuk barang
+INSERT INTO tb_barang (nama, harga) VALUES 
+('WiFi', 50000),
+('Listrik', 100000),
+('Air', 30000),
+('Kebersihan', 25000),
+('Parkir Motor', 20000),
+('Parkir Mobil', 50000);
+
 -- Insert data contoh untuk penghuni
 INSERT INTO tb_penghuni (nama, no_ktp, no_hp, tgl_masuk, kamar_id) VALUES 
 ('Ahmad Rizki', '1234567890123456', '081234567890', '2024-01-15', 1),
 ('Siti Nurhaliza', '2345678901234567', '081234567891', '2024-01-20', 2),
-('Budi Santoso', '3456789012345678', '081234567892', '2024-02-01', 3); 
+('Budi Santoso', '3456789012345678', '081234567892', '2024-02-01', 3);
+
+-- Insert data contoh untuk relasi kamar-penghuni
+INSERT INTO tb_kmr_penghuni (id_kamar, id_penghuni, tgl_masuk) VALUES 
+(1, 1, '2024-01-15'),
+(2, 2, '2024-01-20'),
+(3, 3, '2024-02-01'); 

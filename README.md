@@ -7,10 +7,26 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Dashboard**: Menampilkan statistik dan ringkasan data kost
 - **Manajemen Penghuni**: CRUD data penghuni kost
 - **Manajemen Kamar**: CRUD data kamar dan harga sewa
+- **Manajemen Barang**: CRUD data barang biaya tambahan
+- **Relasi Kamar-Penghuni**: Kelola data penghuni yang menempati kamar
 - **Laporan**: Laporan keuangan dan statistik kost
 - **Interface Modern**: Desain responsif dengan Bootstrap 5
 
 ## Struktur Database
+
+### Tabel tb_kamar
+- `id` (Primary Key, Auto Increment)
+- `nomor` (VARCHAR 10) - Nomor kamar (Unique)
+- `harga` (DECIMAL 10,2) - Harga sewa kamar
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+### Tabel tb_barang
+- `id` (Primary Key, Auto Increment)
+- `nama` (VARCHAR 100) - Nama barang biaya tambahan
+- `harga` (DECIMAL 10,2) - Harga barang
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
 
 ### Tabel tb_penghuni
 - `id` (Primary Key, Auto Increment)
@@ -23,10 +39,12 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
 
-### Tabel tb_kamar
+### Tabel tb_kmr_penghuni
 - `id` (Primary Key, Auto Increment)
-- `nomor` (VARCHAR 10) - Nomor kamar (Unique)
-- `harga` (DECIMAL 10,2) - Harga sewa kamar
+- `id_kamar` (INT, Foreign Key) - ID kamar
+- `id_penghuni` (INT, Foreign Key) - ID penghuni
+- `tgl_masuk` (DATE) - Tanggal masuk ke kamar
+- `tgl_keluar` (DATE, NULL) - Tanggal keluar dari kamar
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
 
@@ -83,6 +101,18 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Hapus Kamar**: Hapus data kamar (hati-hati jika ada penghuni)
 - **Status Kamar**: Tersedia atau Terisi
 
+### Data Barang
+- **Tambah Barang**: Isi nama barang dan harga biaya tambahan
+- **Edit Barang**: Ubah data barang yang sudah ada
+- **Hapus Barang**: Hapus data barang
+- **Contoh Barang**: WiFi, Listrik, Air, Kebersihan, Parkir
+
+### Relasi Kamar-Penghuni
+- **Tambah Relasi**: Hubungkan penghuni dengan kamar tertentu
+- **Edit Relasi**: Ubah data relasi kamar-penghuni
+- **Hapus Relasi**: Hapus data relasi
+- **Status Relasi**: Aktif (tgl_keluar kosong) atau Keluar (tgl_keluar terisi)
+
 ### Laporan
 - Laporan penghuni (aktif dan keluar)
 - Laporan kamar dengan status
@@ -105,6 +135,8 @@ app_kost/
 ├── index.php               # Dashboard utama
 ├── penghuni.php            # Manajemen data penghuni
 ├── kamar.php               # Manajemen data kamar
+├── barang.php              # Manajemen data barang
+├── relasi_kamar.php        # Manajemen relasi kamar-penghuni
 ├── laporan.php             # Halaman laporan
 └── README.md               # Dokumentasi
 ```

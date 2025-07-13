@@ -2,72 +2,81 @@
 session_start();
 include 'database/config.php';
 
-// Proses tambah penghuni
+// Proses tambah relasi
 if (isset($_POST['tambah'])) {
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $no_ktp = mysqli_real_escape_string($conn, $_POST['no_ktp']);
-    $no_hp = mysqli_real_escape_string($conn, $_POST['no_hp']);
+    $id_kamar = $_POST['id_kamar'];
+    $id_penghuni = $_POST['id_penghuni'];
     $tgl_masuk = $_POST['tgl_masuk'];
-    $kamar_id = $_POST['kamar_id'];
+    $tgl_keluar = $_POST['tgl_keluar'] ? $_POST['tgl_keluar'] : 'NULL';
     
-    $query = "INSERT INTO tb_penghuni (nama, no_ktp, no_hp, tgl_masuk, kamar_id) VALUES ('$nama', '$no_ktp', '$no_hp', '$tgl_masuk', $kamar_id)";
+    // Cek apakah kamar sudah terisi
+    $check_query = "SELECT * FROM tb_kmr_penghuni WHERE id_kamar = $id_kamar AND tgl_keluar IS NULL";
+    $check_result = mysqli_query($conn, $check_query);
+    if (mysqli_num_rows($check_result) > 0) {
+        $_SESSION['error'] = "Kamar sudah terisi!";
+        header("Location: relasi_kamar.php");
+        exit();
+    }
+    
+    $query = "INSERT INTO tb_kmr_penghuni (id_kamar, id_penghuni, tgl_masuk";
+    if ($tgl_keluar != 'NULL') {
+        $query .= ", tgl_keluar) VALUES ($id_kamar, $id_penghuni, '$tgl_masuk', '$tgl_keluar')";
+    } else {
+        $query .= ") VALUES ($id_kamar, $id_penghuni, '$tgl_masuk')";
+    }
+    
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data penghuni berhasil ditambahkan!";
+        $_SESSION['success'] = "Data relasi kamar-penghuni berhasil ditambahkan!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: penghuni.php");
+    header("Location: relasi_kamar.php");
     exit();
 }
 
-// Proses update penghuni
+// Proses update relasi
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $no_ktp = mysqli_real_escape_string($conn, $_POST['no_ktp']);
-    $no_hp = mysqli_real_escape_string($conn, $_POST['no_hp']);
+    $id_kamar = $_POST['id_kamar'];
+    $id_penghuni = $_POST['id_penghuni'];
     $tgl_masuk = $_POST['tgl_masuk'];
     $tgl_keluar = $_POST['tgl_keluar'] ? $_POST['tgl_keluar'] : 'NULL';
-    $kamar_id = $_POST['kamar_id'] ? $_POST['kamar_id'] : 'NULL';
     
-    $query = "UPDATE tb_penghuni SET nama='$nama', no_ktp='$no_ktp', no_hp='$no_hp', tgl_masuk='$tgl_masuk'";
+    $query = "UPDATE tb_kmr_penghuni SET id_kamar=$id_kamar, id_penghuni=$id_penghuni, tgl_masuk='$tgl_masuk'";
     if ($tgl_keluar != 'NULL') {
         $query .= ", tgl_keluar='$tgl_keluar'";
-    }
-    if ($kamar_id != 'NULL') {
-        $query .= ", kamar_id=$kamar_id";
     } else {
-        $query .= ", kamar_id=NULL";
+        $query .= ", tgl_keluar=NULL";
     }
     $query .= " WHERE id=$id";
     
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data penghuni berhasil diupdate!";
+        $_SESSION['success'] = "Data relasi kamar-penghuni berhasil diupdate!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: penghuni.php");
+    header("Location: relasi_kamar.php");
     exit();
 }
 
-// Proses hapus penghuni
+// Proses hapus relasi
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    $query = "DELETE FROM tb_penghuni WHERE id=$id";
+    $query = "DELETE FROM tb_kmr_penghuni WHERE id=$id";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data penghuni berhasil dihapus!";
+        $_SESSION['success'] = "Data relasi kamar-penghuni berhasil dihapus!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: penghuni.php");
+    header("Location: relasi_kamar.php");
     exit();
 }
 
-// Ambil data penghuni untuk edit
+// Ambil data relasi untuk edit
 $edit_data = null;
 if (isset($_GET['edit'])) {
     $id = $_GET['edit'];
-    $query = "SELECT * FROM tb_penghuni WHERE id=$id";
+    $query = "SELECT * FROM tb_kmr_penghuni WHERE id=$id";
     $result = mysqli_query($conn, $query);
     $edit_data = mysqli_fetch_assoc($result);
 }
@@ -77,7 +86,7 @@ if (isset($_GET['edit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Penghuni - Sistem Manajemen Kost</title>
+    <title>Relasi Kamar-Penghuni - Sistem Manajemen Kost</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -136,7 +145,7 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link" href="index.php">
                             <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                         </a>
-                        <a class="nav-link active" href="penghuni.php">
+                        <a class="nav-link" href="penghuni.php">
                             <i class="fas fa-users me-2"></i> Data Penghuni
                         </a>
                         <a class="nav-link" href="kamar.php">
@@ -145,7 +154,7 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link" href="barang.php">
                             <i class="fas fa-box me-2"></i> Data Barang
                         </a>
-                        <a class="nav-link" href="relasi_kamar.php">
+                        <a class="nav-link active" href="relasi_kamar.php">
                             <i class="fas fa-link me-2"></i> Relasi Kamar
                         </a>
                         <a class="nav-link" href="laporan.php">
@@ -159,7 +168,8 @@ if (isset($_GET['edit'])) {
             <div class="col-md-9 col-lg-10 main-content p-4">
                 <div class="row">
                     <div class="col-12">
-                        <h2 class="mb-4"><i class="fas fa-users"></i> Data Penghuni</h2>
+                        <h2 class="mb-4"><i class="fas fa-link"></i> Relasi Kamar-Penghuni</h2>
+                        <p class="text-muted">Kelola data penghuni yang menempati kamar tertentu</p>
                     </div>
                 </div>
 
@@ -178,12 +188,12 @@ if (isset($_GET['edit'])) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Form Tambah/Edit Penghuni -->
+                <!-- Form Tambah/Edit Relasi -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="fas fa-plus"></i> 
-                            <?php echo $edit_data ? 'Edit Data Penghuni' : 'Tambah Penghuni Baru'; ?>
+                            <?php echo $edit_data ? 'Edit Relasi Kamar-Penghuni' : 'Tambah Relasi Baru'; ?>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -195,46 +205,39 @@ if (isset($_GET['edit'])) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nama" class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" id="nama" name="nama" 
-                                               value="<?php echo $edit_data ? $edit_data['nama'] : ''; ?>" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="no_ktp" class="form-label">Nomor KTP</label>
-                                        <input type="text" class="form-control" id="no_ktp" name="no_ktp" 
-                                               value="<?php echo $edit_data ? $edit_data['no_ktp'] : ''; ?>" 
-                                               maxlength="16" required>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="no_hp" class="form-label">Nomor Handphone</label>
-                                        <input type="text" class="form-control" id="no_hp" name="no_hp" 
-                                               value="<?php echo $edit_data ? $edit_data['no_hp'] : ''; ?>" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="kamar_id" class="form-label">Kamar</label>
-                                        <select class="form-control" id="kamar_id" name="kamar_id" required>
+                                        <label for="id_kamar" class="form-label">Kamar</label>
+                                        <select class="form-control" id="id_kamar" name="id_kamar" required>
                                             <option value="">Pilih Kamar</option>
                                             <?php
                                             $query_kamar = "SELECT k.*, 
-                                                           CASE WHEN p.id IS NULL THEN 'Tersedia' ELSE 'Terisi' END as status
+                                                           CASE WHEN kp.id IS NULL THEN 'Tersedia' ELSE 'Terisi' END as status
                                                            FROM tb_kamar k 
-                                                           LEFT JOIN tb_penghuni p ON k.id = p.kamar_id AND p.tgl_keluar IS NULL
+                                                           LEFT JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL
                                                            ORDER BY k.nomor";
                                             $result_kamar = mysqli_query($conn, $query_kamar);
                                             while ($kamar = mysqli_fetch_assoc($result_kamar)) {
-                                                $selected = ($edit_data && $edit_data['kamar_id'] == $kamar['id']) ? 'selected' : '';
+                                                $selected = ($edit_data && $edit_data['id_kamar'] == $kamar['id']) ? 'selected' : '';
                                                 $disabled = ($kamar['status'] == 'Terisi' && !$selected) ? 'disabled' : '';
                                                 echo "<option value='" . $kamar['id'] . "' $selected $disabled>";
                                                 echo $kamar['nomor'] . " - Rp " . number_format($kamar['harga'], 0, ',', '.') . " ($status)";
+                                                echo "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="id_penghuni" class="form-label">Penghuni</label>
+                                        <select class="form-control" id="id_penghuni" name="id_penghuni" required>
+                                            <option value="">Pilih Penghuni</option>
+                                            <?php
+                                            $query_penghuni = "SELECT * FROM tb_penghuni ORDER BY nama";
+                                            $result_penghuni = mysqli_query($conn, $query_penghuni);
+                                            while ($penghuni = mysqli_fetch_assoc($result_penghuni)) {
+                                                $selected = ($edit_data && $edit_data['id_penghuni'] == $penghuni['id']) ? 'selected' : '';
+                                                echo "<option value='" . $penghuni['id'] . "' $selected>";
+                                                echo htmlspecialchars($penghuni['nama']) . " - " . $penghuni['no_ktp'];
                                                 echo "</option>";
                                             }
                                             ?>
@@ -266,12 +269,12 @@ if (isset($_GET['edit'])) {
                                     <button type="submit" name="update" class="btn btn-primary">
                                         <i class="fas fa-save"></i> Update Data
                                     </button>
-                                    <a href="penghuni.php" class="btn btn-secondary">
+                                    <a href="relasi_kamar.php" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Batal
                                     </a>
                                 <?php else: ?>
                                     <button type="submit" name="tambah" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i> Tambah Penghuni
+                                        <i class="fas fa-plus"></i> Tambah Relasi
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -279,10 +282,10 @@ if (isset($_GET['edit'])) {
                     </div>
                 </div>
 
-                <!-- Tabel Data Penghuni -->
+                <!-- Tabel Data Relasi -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Penghuni</h5>
+                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Relasi Kamar-Penghuni</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -290,10 +293,8 @@ if (isset($_GET['edit'])) {
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nama</th>
-                                        <th>No KTP</th>
-                                        <th>No HP</th>
                                         <th>Kamar</th>
+                                        <th>Penghuni</th>
                                         <th>Tanggal Masuk</th>
                                         <th>Tanggal Keluar</th>
                                         <th>Status</th>
@@ -302,10 +303,11 @@ if (isset($_GET['edit'])) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $query = "SELECT p.*, k.nomor as nomor_kamar 
-                                             FROM tb_penghuni p 
-                                             LEFT JOIN tb_kamar k ON p.kamar_id = k.id 
-                                             ORDER BY p.tgl_masuk DESC";
+                                    $query = "SELECT kp.*, k.nomor as nomor_kamar, k.harga, p.nama as nama_penghuni, p.no_ktp
+                                             FROM tb_kmr_penghuni kp 
+                                             INNER JOIN tb_kamar k ON kp.id_kamar = k.id
+                                             INNER JOIN tb_penghuni p ON kp.id_penghuni = p.id
+                                             ORDER BY kp.tgl_masuk DESC";
                                     $result = mysqli_query($conn, $query);
                                     $no = 1;
                                     while ($row = mysqli_fetch_assoc($result)) {
@@ -314,10 +316,10 @@ if (isset($_GET['edit'])) {
                                         
                                         echo "<tr>";
                                         echo "<td>" . $no++ . "</td>";
-                                        echo "<td>" . htmlspecialchars($row['nama']) . "</td>";
-                                        echo "<td>" . htmlspecialchars($row['no_ktp']) . "</td>";
-                                        echo "<td>" . htmlspecialchars($row['no_hp']) . "</td>";
-                                        echo "<td>" . ($row['nomor_kamar'] ? $row['nomor_kamar'] : '-') . "</td>";
+                                        echo "<td><strong>" . htmlspecialchars($row['nomor_kamar']) . "</strong><br>";
+                                        echo "<small class='text-muted'>Rp " . number_format($row['harga'], 0, ',', '.') . "</small></td>";
+                                        echo "<td>" . htmlspecialchars($row['nama_penghuni']) . "<br>";
+                                        echo "<small class='text-muted'>" . $row['no_ktp'] . "</small></td>";
                                         echo "<td>" . date('d/m/Y', strtotime($row['tgl_masuk'])) . "</td>";
                                         echo "<td>" . ($row['tgl_keluar'] ? date('d/m/Y', strtotime($row['tgl_keluar'])) : '-') . "</td>";
                                         echo "<td><span class='$status_class'>$status</span></td>";

@@ -125,6 +125,12 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link active" href="kamar.php">
                             <i class="fas fa-bed me-2"></i> Data Kamar
                         </a>
+                        <a class="nav-link" href="barang.php">
+                            <i class="fas fa-box me-2"></i> Data Barang
+                        </a>
+                        <a class="nav-link" href="relasi_kamar.php">
+                            <i class="fas fa-link me-2"></i> Relasi Kamar
+                        </a>
                         <a class="nav-link" href="laporan.php">
                             <i class="fas fa-chart-bar me-2"></i> Laporan
                         </a>
