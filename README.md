@@ -9,6 +9,8 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Manajemen Kamar**: CRUD data kamar dan harga sewa
 - **Manajemen Barang**: CRUD data barang biaya tambahan
 - **Relasi Kamar-Penghuni**: Kelola data penghuni yang menempati kamar
+- **Barang Bawaan**: Kelola barang yang dibawa/digunakan penghuni
+- **Sistem Tagihan**: Generate dan kelola tagihan bulanan otomatis
 - **Laporan**: Laporan keuangan dan statistik kost
 - **Interface Modern**: Desain responsif dengan Bootstrap 5
 
@@ -45,6 +47,23 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - `id_penghuni` (INT, Foreign Key) - ID penghuni
 - `tgl_masuk` (DATE) - Tanggal masuk ke kamar
 - `tgl_keluar` (DATE, NULL) - Tanggal keluar dari kamar
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+### Tabel tb_brng_bawaan
+- `id` (Primary Key, Auto Increment)
+- `id_penghuni` (INT, Foreign Key) - ID penghuni
+- `id_barang` (INT, Foreign Key) - ID barang
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+### Tabel tb_tagihan
+- `id` (Primary Key, Auto Increment)
+- `bulan` (VARCHAR 7) - Format: YYYY-MM
+- `id_kmr_penghuni` (INT, Foreign Key) - ID relasi kamar-penghuni
+- `jml_tagihan` (DECIMAL 10,2) - Total tagihan (sewa + barang)
+- `status_bayar` (ENUM) - Belum Bayar/Sudah Bayar
+- `tgl_bayar` (DATE, NULL) - Tanggal pembayaran
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
 
@@ -113,6 +132,17 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Hapus Relasi**: Hapus data relasi
 - **Status Relasi**: Aktif (tgl_keluar kosong) atau Keluar (tgl_keluar terisi)
 
+### Barang Bawaan
+- **Tambah Barang Bawaan**: Pilih penghuni dan barang yang digunakan
+- **Hapus Barang Bawaan**: Hapus barang yang tidak digunakan lagi
+- **Validasi**: Mencegah duplikasi barang untuk penghuni yang sama
+
+### Sistem Tagihan
+- **Generate Otomatis**: Buat tagihan bulanan untuk semua penghuni aktif
+- **Perhitungan Otomatis**: Tagihan = Harga Sewa + Total Barang Bawaan
+- **Status Pembayaran**: Update status Belum Bayar/Sudah Bayar
+- **Riwayat Tagihan**: Melihat semua tagihan per bulan
+
 ### Laporan
 - Laporan penghuni (aktif dan keluar)
 - Laporan kamar dengan status
@@ -137,6 +167,8 @@ app_kost/
 ├── kamar.php               # Manajemen data kamar
 ├── barang.php              # Manajemen data barang
 ├── relasi_kamar.php        # Manajemen relasi kamar-penghuni
+├── barang_bawaan.php       # Manajemen barang bawaan
+├── tagihan.php             # Manajemen tagihan
 ├── laporan.php             # Halaman laporan
 └── README.md               # Dokumentasi
 ```

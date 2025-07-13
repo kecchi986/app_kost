@@ -85,6 +85,12 @@ include 'database/config.php';
                         <a class="nav-link" href="relasi_kamar.php">
                             <i class="fas fa-link me-2"></i> Relasi Kamar
                         </a>
+                        <a class="nav-link" href="barang_bawaan.php">
+                            <i class="fas fa-suitcase me-2"></i> Barang Bawaan
+                        </a>
+                        <a class="nav-link" href="tagihan.php">
+                            <i class="fas fa-file-invoice me-2"></i> Tagihan
+                        </a>
                         <a class="nav-link active" href="laporan.php">
                             <i class="fas fa-chart-bar me-2"></i> Laporan
                         </a>

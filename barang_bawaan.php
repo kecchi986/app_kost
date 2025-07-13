@@ -2,57 +2,41 @@
 session_start();
 include 'database/config.php';
 
-// Proses tambah barang
+// Proses tambah barang bawaan
 if (isset($_POST['tambah'])) {
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $harga = $_POST['harga'];
+    $id_penghuni = $_POST['id_penghuni'];
+    $id_barang = $_POST['id_barang'];
     
-    $query = "INSERT INTO tb_barang (nama, harga) VALUES ('$nama', $harga)";
+    // Cek apakah sudah ada barang yang sama untuk penghuni ini
+    $check_query = "SELECT * FROM tb_brng_bawaan WHERE id_penghuni = $id_penghuni AND id_barang = $id_barang";
+    $check_result = mysqli_query($conn, $check_query);
+    if (mysqli_num_rows($check_result) > 0) {
+        $_SESSION['error'] = "Barang ini sudah ada untuk penghuni tersebut!";
+        header("Location: barang_bawaan.php");
+        exit();
+    }
+    
+    $query = "INSERT INTO tb_brng_bawaan (id_penghuni, id_barang) VALUES ($id_penghuni, $id_barang)";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data barang berhasil ditambahkan!";
+        $_SESSION['success'] = "Data barang bawaan berhasil ditambahkan!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: barang.php");
+    header("Location: barang_bawaan.php");
     exit();
 }
 
-// Proses update barang
-if (isset($_POST['update'])) {
-    $id = $_POST['id'];
-    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
-    $harga = $_POST['harga'];
-    
-    $query = "UPDATE tb_barang SET nama='$nama', harga=$harga WHERE id=$id";
-    if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data barang berhasil diupdate!";
-    } else {
-        $_SESSION['error'] = "Error: " . mysqli_error($conn);
-    }
-    header("Location: barang.php");
-    exit();
-}
-
-// Proses hapus barang
+// Proses hapus barang bawaan
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    $query = "DELETE FROM tb_barang WHERE id=$id";
+    $query = "DELETE FROM tb_brng_bawaan WHERE id=$id";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data barang berhasil dihapus!";
+        $_SESSION['success'] = "Data barang bawaan berhasil dihapus!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: barang.php");
+    header("Location: barang_bawaan.php");
     exit();
-}
-
-// Ambil data barang untuk edit
-$edit_data = null;
-if (isset($_GET['edit'])) {
-    $id = $_GET['edit'];
-    $query = "SELECT * FROM tb_barang WHERE id=$id";
-    $result = mysqli_query($conn, $query);
-    $edit_data = mysqli_fetch_assoc($result);
 }
 ?>
 <!DOCTYPE html>
@@ -60,7 +44,7 @@ if (isset($_GET['edit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Barang - Sistem Manajemen Kost</title>
+    <title>Data Barang Bawaan - Sistem Manajemen Kost</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -125,13 +109,13 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link" href="kamar.php">
                             <i class="fas fa-bed me-2"></i> Data Kamar
                         </a>
-                        <a class="nav-link active" href="barang.php">
+                        <a class="nav-link" href="barang.php">
                             <i class="fas fa-box me-2"></i> Data Barang
                         </a>
                         <a class="nav-link" href="relasi_kamar.php">
                             <i class="fas fa-link me-2"></i> Relasi Kamar
                         </a>
-                        <a class="nav-link" href="barang_bawaan.php">
+                        <a class="nav-link active" href="barang_bawaan.php">
                             <i class="fas fa-suitcase me-2"></i> Barang Bawaan
                         </a>
                         <a class="nav-link" href="tagihan.php">
@@ -148,8 +132,8 @@ if (isset($_GET['edit'])) {
             <div class="col-md-9 col-lg-10 main-content p-4">
                 <div class="row">
                     <div class="col-12">
-                        <h2 class="mb-4"><i class="fas fa-box"></i> Data Barang</h2>
-                        <p class="text-muted">Kelola data barang yang dikenai biaya tambahan</p>
+                        <h2 class="mb-4"><i class="fas fa-suitcase"></i> Data Barang Bawaan</h2>
+                        <p class="text-muted">Kelola data barang yang dibawa/digunakan oleh penghuni</p>
                     </div>
                 </div>
 
@@ -168,61 +152,65 @@ if (isset($_GET['edit'])) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Form Tambah/Edit Barang -->
+                <!-- Form Tambah Barang Bawaan -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <i class="fas fa-plus"></i> 
-                            <?php echo $edit_data ? 'Edit Data Barang' : 'Tambah Barang Baru'; ?>
+                            <i class="fas fa-plus"></i> Tambah Barang Bawaan Baru
                         </h5>
                     </div>
                     <div class="card-body">
                         <form method="POST">
-                            <?php if ($edit_data): ?>
-                                <input type="hidden" name="id" value="<?php echo $edit_data['id']; ?>">
-                            <?php endif; ?>
-                            
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nama" class="form-label">Nama Barang</label>
-                                        <input type="text" class="form-control" id="nama" name="nama" 
-                                               value="<?php echo $edit_data ? $edit_data['nama'] : ''; ?>" 
-                                               placeholder="Contoh: WiFi, Listrik, Air" required>
+                                        <label for="id_penghuni" class="form-label">Penghuni</label>
+                                        <select class="form-control" id="id_penghuni" name="id_penghuni" required>
+                                            <option value="">Pilih Penghuni</option>
+                                            <?php
+                                            $query_penghuni = "SELECT * FROM tb_penghuni WHERE tgl_keluar IS NULL ORDER BY nama";
+                                            $result_penghuni = mysqli_query($conn, $query_penghuni);
+                                            while ($penghuni = mysqli_fetch_assoc($result_penghuni)) {
+                                                echo "<option value='" . $penghuni['id'] . "'>";
+                                                echo htmlspecialchars($penghuni['nama']) . " - " . $penghuni['no_ktp'];
+                                                echo "</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="harga" class="form-label">Harga (Rp)</label>
-                                        <input type="number" class="form-control" id="harga" name="harga" 
-                                               value="<?php echo $edit_data ? $edit_data['harga'] : ''; ?>" 
-                                               min="0" step="1000" placeholder="50000" required>
+                                        <label for="id_barang" class="form-label">Barang</label>
+                                        <select class="form-control" id="id_barang" name="id_barang" required>
+                                            <option value="">Pilih Barang</option>
+                                            <?php
+                                            $query_barang = "SELECT * FROM tb_barang ORDER BY nama";
+                                            $result_barang = mysqli_query($conn, $query_barang);
+                                            while ($barang = mysqli_fetch_assoc($result_barang)) {
+                                                echo "<option value='" . $barang['id'] . "'>";
+                                                echo htmlspecialchars($barang['nama']) . " - Rp " . number_format($barang['harga'], 0, ',', '.');
+                                                echo "</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="d-flex gap-2">
-                                <?php if ($edit_data): ?>
-                                    <button type="submit" name="update" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> Update Data
-                                    </button>
-                                    <a href="barang.php" class="btn btn-secondary">
-                                        <i class="fas fa-times"></i> Batal
-                                    </a>
-                                <?php else: ?>
-                                    <button type="submit" name="tambah" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i> Tambah Barang
-                                    </button>
-                                <?php endif; ?>
+                                <button type="submit" name="tambah" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Tambah Barang Bawaan
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
 
-                <!-- Tabel Data Barang -->
+                <!-- Tabel Data Barang Bawaan -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Barang</h5>
+                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Barang Bawaan</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -230,7 +218,8 @@ if (isset($_GET['edit'])) {
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nama Barang</th>
+                                        <th>Penghuni</th>
+                                        <th>Barang</th>
                                         <th>Harga</th>
                                         <th>Tanggal Dibuat</th>
                                         <th>Aksi</th>
@@ -238,17 +227,22 @@ if (isset($_GET['edit'])) {
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $query = "SELECT * FROM tb_barang ORDER BY nama";
+                                    $query = "SELECT bb.*, p.nama as nama_penghuni, p.no_ktp, b.nama as nama_barang, b.harga
+                                             FROM tb_brng_bawaan bb 
+                                             INNER JOIN tb_penghuni p ON bb.id_penghuni = p.id
+                                             INNER JOIN tb_barang b ON bb.id_barang = b.id
+                                             ORDER BY p.nama, b.nama";
                                     $result = mysqli_query($conn, $query);
                                     $no = 1;
                                     while ($row = mysqli_fetch_assoc($result)) {
                                         echo "<tr>";
                                         echo "<td>" . $no++ . "</td>";
-                                        echo "<td><strong>" . htmlspecialchars($row['nama']) . "</strong></td>";
+                                        echo "<td><strong>" . htmlspecialchars($row['nama_penghuni']) . "</strong><br>";
+                                        echo "<small class='text-muted'>" . $row['no_ktp'] . "</small></td>";
+                                        echo "<td><strong>" . htmlspecialchars($row['nama_barang']) . "</strong></td>";
                                         echo "<td>Rp " . number_format($row['harga'], 0, ',', '.') . "</td>";
                                         echo "<td>" . date('d/m/Y H:i', strtotime($row['created_at'])) . "</td>";
                                         echo "<td>";
-                                        echo "<a href='?edit=" . $row['id'] . "' class='btn btn-sm btn-warning me-1'><i class='fas fa-edit'></i></a>";
                                         echo "<a href='?hapus=" . $row['id'] . "' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin ingin menghapus data ini?\")'><i class='fas fa-trash'></i></a>";
                                         echo "</td>";
                                         echo "</tr>";

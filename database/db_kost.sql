@@ -47,6 +47,30 @@ CREATE TABLE IF NOT EXISTS tb_kmr_penghuni (
     FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id) ON DELETE CASCADE
 );
 
+-- Tabel tb_brng_bawaan (barang bawaan penghuni)
+CREATE TABLE IF NOT EXISTS tb_brng_bawaan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_penghuni INT NOT NULL,
+    id_barang INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_barang) REFERENCES tb_barang(id) ON DELETE CASCADE
+);
+
+-- Tabel tb_tagihan
+CREATE TABLE IF NOT EXISTS tb_tagihan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    bulan VARCHAR(7) NOT NULL, -- Format: YYYY-MM
+    id_kmr_penghuni INT NOT NULL,
+    jml_tagihan DECIMAL(10,2) NOT NULL,
+    status_bayar ENUM('Belum Bayar', 'Sudah Bayar') DEFAULT 'Belum Bayar',
+    tgl_bayar DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_kmr_penghuni) REFERENCES tb_kmr_penghuni(id) ON DELETE CASCADE
+);
+
 -- Insert data contoh untuk kamar
 INSERT INTO tb_kamar (nomor, harga) VALUES 
 ('A1', 800000),
@@ -75,4 +99,22 @@ INSERT INTO tb_penghuni (nama, no_ktp, no_hp, tgl_masuk, kamar_id) VALUES
 INSERT INTO tb_kmr_penghuni (id_kamar, id_penghuni, tgl_masuk) VALUES 
 (1, 1, '2024-01-15'),
 (2, 2, '2024-01-20'),
-(3, 3, '2024-02-01'); 
+(3, 3, '2024-02-01');
+
+-- Insert data contoh untuk barang bawaan
+INSERT INTO tb_brng_bawaan (id_penghuni, id_barang) VALUES 
+(1, 1), -- Ahmad Rizki menggunakan WiFi
+(1, 2), -- Ahmad Rizki menggunakan Listrik
+(2, 1), -- Siti Nurhaliza menggunakan WiFi
+(2, 3), -- Siti Nurhaliza menggunakan Air
+(3, 1), -- Budi Santoso menggunakan WiFi
+(3, 2), -- Budi Santoso menggunakan Listrik
+(3, 4); -- Budi Santoso menggunakan Kebersihan
+
+-- Insert data contoh untuk tagihan
+INSERT INTO tb_tagihan (bulan, id_kmr_penghuni, jml_tagihan) VALUES 
+('2024-01', 1, 950000), -- Ahmad Rizki: 800000 (kamar) + 150000 (WiFi+Listrik)
+('2024-01', 2, 880000), -- Siti Nurhaliza: 800000 (kamar) + 80000 (WiFi+Air)
+('2024-02', 1, 950000), -- Ahmad Rizki Februari
+('2024-02', 2, 880000), -- Siti Nurhaliza Februari
+('2024-02', 3, 1025000); -- Budi Santoso: 900000 (kamar) + 125000 (WiFi+Listrik+Kebersihan) 
