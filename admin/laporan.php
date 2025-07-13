@@ -1,13 +1,14 @@
 <?php
 session_start();
-include 'database/config.php';
+include '../database/config.php';
+include 'auth_check.php';
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan - Sistem Manajemen Kost</title>
+    <title>Laporan - Admin Panel Kost Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -67,7 +68,8 @@ include 'database/config.php';
             <div class="col-md-3 col-lg-2 px-0">
                 <div class="sidebar p-3">
                     <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-home"></i> Kost Manager</h4>
+                        <h4 class="text-white"><i class="fas fa-user-shield"></i> Admin Panel</h4>
+                        <small class="text-white-50">Kost Manager</small>
                     </div>
                     <nav class="nav flex-column">
                         <a class="nav-link" href="index.php">
@@ -99,6 +101,17 @@ include 'database/config.php';
                         </a>
                         <a class="nav-link active" href="laporan.php">
                             <i class="fas fa-chart-bar me-2"></i> Laporan
+                        </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="../index.php">
+                            <i class="fas fa-home me-2"></i> Halaman Depan
+                        </a>
+                        <hr class="text-white-50">
+                        <div class="text-white-50 small mb-2">
+                            <i class="fas fa-user me-2"></i> <?php echo htmlspecialchars($_SESSION['admin_nama']); ?>
+                        </div>
+                        <a class="nav-link" href="logout.php" onclick="return confirm('Yakin ingin logout?')">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
                         </a>
                     </nav>
                 </div>
@@ -136,8 +149,7 @@ include 'database/config.php';
                     // Total pendapatan potensial
                     $query_pendapatan = "SELECT SUM(k.harga) as total_pendapatan 
                                        FROM tb_kamar k 
-                                       INNER JOIN tb_penghuni p ON k.id = p.kamar_id 
-                                       WHERE p.tgl_keluar IS NULL";
+                                       INNER JOIN tb_kmr_penghuni kp ON k.id = kp.id_kamar AND kp.tgl_keluar IS NULL";
                     $result_pendapatan = mysqli_query($conn, $query_pendapatan);
                     $total_pendapatan = mysqli_fetch_assoc($result_pendapatan)['total_pendapatan'] ?: 0;
                     ?>

@@ -1,56 +1,57 @@
 <?php
 session_start();
-include 'database/config.php';
+include '../database/config.php';
+include 'auth_check.php';
 
-// Proses tambah kamar
+// Proses tambah barang
 if (isset($_POST['tambah'])) {
-    $nomor = mysqli_real_escape_string($conn, $_POST['nomor']);
+    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
     $harga = $_POST['harga'];
     
-    $query = "INSERT INTO tb_kamar (nomor, harga) VALUES ('$nomor', $harga)";
+    $query = "INSERT INTO tb_barang (nama, harga) VALUES ('$nama', $harga)";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data kamar berhasil ditambahkan!";
+        $_SESSION['success'] = "Data barang berhasil ditambahkan!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: kamar.php");
+    header("Location: barang.php");
     exit();
 }
 
-// Proses update kamar
+// Proses update barang
 if (isset($_POST['update'])) {
     $id = $_POST['id'];
-    $nomor = mysqli_real_escape_string($conn, $_POST['nomor']);
+    $nama = mysqli_real_escape_string($conn, $_POST['nama']);
     $harga = $_POST['harga'];
     
-    $query = "UPDATE tb_kamar SET nomor='$nomor', harga=$harga WHERE id=$id";
+    $query = "UPDATE tb_barang SET nama='$nama', harga=$harga WHERE id=$id";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data kamar berhasil diupdate!";
+        $_SESSION['success'] = "Data barang berhasil diupdate!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: kamar.php");
+    header("Location: barang.php");
     exit();
 }
 
-// Proses hapus kamar
+// Proses hapus barang
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    $query = "DELETE FROM tb_kamar WHERE id=$id";
+    $query = "DELETE FROM tb_barang WHERE id=$id";
     if (mysqli_query($conn, $query)) {
-        $_SESSION['success'] = "Data kamar berhasil dihapus!";
+        $_SESSION['success'] = "Data barang berhasil dihapus!";
     } else {
         $_SESSION['error'] = "Error: " . mysqli_error($conn);
     }
-    header("Location: kamar.php");
+    header("Location: barang.php");
     exit();
 }
 
-// Ambil data kamar untuk edit
+// Ambil data barang untuk edit
 $edit_data = null;
 if (isset($_GET['edit'])) {
     $id = $_GET['edit'];
-    $query = "SELECT * FROM tb_kamar WHERE id=$id";
+    $query = "SELECT * FROM tb_barang WHERE id=$id";
     $result = mysqli_query($conn, $query);
     $edit_data = mysqli_fetch_assoc($result);
 }
@@ -60,7 +61,7 @@ if (isset($_GET['edit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Kamar - Sistem Manajemen Kost</title>
+    <title>Data Barang - Admin Panel Kost Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -113,7 +114,8 @@ if (isset($_GET['edit'])) {
             <div class="col-md-3 col-lg-2 px-0">
                 <div class="sidebar p-3">
                     <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="fas fa-home"></i> Kost Manager</h4>
+                        <h4 class="text-white"><i class="fas fa-user-shield"></i> Admin Panel</h4>
+                        <small class="text-white-50">Kost Manager</small>
                     </div>
                     <nav class="nav flex-column">
                         <a class="nav-link" href="index.php">
@@ -122,10 +124,10 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link" href="penghuni.php">
                             <i class="fas fa-users me-2"></i> Data Penghuni
                         </a>
-                        <a class="nav-link active" href="kamar.php">
+                        <a class="nav-link" href="kamar.php">
                             <i class="fas fa-bed me-2"></i> Data Kamar
                         </a>
-                        <a class="nav-link" href="barang.php">
+                        <a class="nav-link active" href="barang.php">
                             <i class="fas fa-box me-2"></i> Data Barang
                         </a>
                         <a class="nav-link" href="relasi_kamar.php">
@@ -146,6 +148,17 @@ if (isset($_GET['edit'])) {
                         <a class="nav-link" href="laporan.php">
                             <i class="fas fa-chart-bar me-2"></i> Laporan
                         </a>
+                        <hr class="text-white-50">
+                        <a class="nav-link" href="../index.php">
+                            <i class="fas fa-home me-2"></i> Halaman Depan
+                        </a>
+                        <hr class="text-white-50">
+                        <div class="text-white-50 small mb-2">
+                            <i class="fas fa-user me-2"></i> <?php echo htmlspecialchars($_SESSION['admin_nama']); ?>
+                        </div>
+                        <a class="nav-link" href="logout.php" onclick="return confirm('Yakin ingin logout?')">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
                     </nav>
                 </div>
             </div>
@@ -154,7 +167,8 @@ if (isset($_GET['edit'])) {
             <div class="col-md-9 col-lg-10 main-content p-4">
                 <div class="row">
                     <div class="col-12">
-                        <h2 class="mb-4"><i class="fas fa-bed"></i> Data Kamar</h2>
+                        <h2 class="mb-4"><i class="fas fa-box"></i> Data Barang</h2>
+                        <p class="text-muted">Kelola data barang yang dikenai biaya tambahan</p>
                     </div>
                 </div>
 
@@ -173,12 +187,12 @@ if (isset($_GET['edit'])) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Form Tambah/Edit Kamar -->
+                <!-- Form Tambah/Edit Barang -->
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="mb-0">
                             <i class="fas fa-plus"></i> 
-                            <?php echo $edit_data ? 'Edit Data Kamar' : 'Tambah Kamar Baru'; ?>
+                            <?php echo $edit_data ? 'Edit Data Barang' : 'Tambah Barang Baru'; ?>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -190,17 +204,18 @@ if (isset($_GET['edit'])) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="nomor" class="form-label">Nomor Kamar</label>
-                                        <input type="text" class="form-control" id="nomor" name="nomor" 
-                                               value="<?php echo $edit_data ? $edit_data['nomor'] : ''; ?>" required>
+                                        <label for="nama" class="form-label">Nama Barang</label>
+                                        <input type="text" class="form-control" id="nama" name="nama" 
+                                               value="<?php echo $edit_data ? $edit_data['nama'] : ''; ?>" 
+                                               placeholder="Contoh: WiFi, Listrik, Air" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label for="harga" class="form-label">Harga Sewa (Rp)</label>
+                                        <label for="harga" class="form-label">Harga (Rp)</label>
                                         <input type="number" class="form-control" id="harga" name="harga" 
                                                value="<?php echo $edit_data ? $edit_data['harga'] : ''; ?>" 
-                                               min="0" step="1000" required>
+                                               min="0" step="1000" placeholder="50000" required>
                                     </div>
                                 </div>
                             </div>
@@ -210,12 +225,12 @@ if (isset($_GET['edit'])) {
                                     <button type="submit" name="update" class="btn btn-primary">
                                         <i class="fas fa-save"></i> Update Data
                                     </button>
-                                    <a href="kamar.php" class="btn btn-secondary">
+                                    <a href="barang.php" class="btn btn-secondary">
                                         <i class="fas fa-times"></i> Batal
                                     </a>
                                 <?php else: ?>
                                     <button type="submit" name="tambah" class="btn btn-primary">
-                                        <i class="fas fa-plus"></i> Tambah Kamar
+                                        <i class="fas fa-plus"></i> Tambah Barang
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -223,10 +238,10 @@ if (isset($_GET['edit'])) {
                     </div>
                 </div>
 
-                <!-- Tabel Data Kamar -->
+                <!-- Tabel Data Barang -->
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Kamar</h5>
+                        <h5 class="mb-0"><i class="fas fa-table"></i> Daftar Barang</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -234,32 +249,23 @@ if (isset($_GET['edit'])) {
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nomor Kamar</th>
-                                        <th>Harga Sewa</th>
-                                        <th>Status</th>
-                                        <th>Penghuni</th>
+                                        <th>Nama Barang</th>
+                                        <th>Harga</th>
+                                        <th>Tanggal Dibuat</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php
-                                    $query = "SELECT k.*, 
-                                             CASE WHEN p.id IS NULL THEN 'Tersedia' ELSE 'Terisi' END as status,
-                                             p.nama as nama_penghuni
-                                             FROM tb_kamar k 
-                                             LEFT JOIN tb_penghuni p ON k.id = p.kamar_id AND p.tgl_keluar IS NULL
-                                             ORDER BY k.nomor";
+                                    $query = "SELECT * FROM tb_barang ORDER BY nama";
                                     $result = mysqli_query($conn, $query);
                                     $no = 1;
                                     while ($row = mysqli_fetch_assoc($result)) {
-                                        $status_class = $row['status'] == 'Tersedia' ? 'text-success' : 'text-danger';
-                                        
                                         echo "<tr>";
                                         echo "<td>" . $no++ . "</td>";
-                                        echo "<td><strong>" . htmlspecialchars($row['nomor']) . "</strong></td>";
+                                        echo "<td><strong>" . htmlspecialchars($row['nama']) . "</strong></td>";
                                         echo "<td>Rp " . number_format($row['harga'], 0, ',', '.') . "</td>";
-                                        echo "<td><span class='$status_class'>" . $row['status'] . "</span></td>";
-                                        echo "<td>" . ($row['nama_penghuni'] ? htmlspecialchars($row['nama_penghuni']) : '-') . "</td>";
+                                        echo "<td>" . date('d/m/Y H:i', strtotime($row['created_at'])) . "</td>";
                                         echo "<td>";
                                         echo "<a href='?edit=" . $row['id'] . "' class='btn btn-sm btn-warning me-1'><i class='fas fa-edit'></i></a>";
                                         echo "<a href='?hapus=" . $row['id'] . "' class='btn btn-sm btn-danger' onclick='return confirm(\"Yakin ingin menghapus data ini?\")'><i class='fas fa-trash'></i></a>";

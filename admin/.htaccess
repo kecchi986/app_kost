@@ -1,0 +1,26 @@
+# Keamanan folder admin
+# Uncomment baris di bawah jika ingin menggunakan autentikasi HTTP Basic
+# AuthType Basic
+# AuthName "Admin Area"
+# AuthUserFile /path/to/.htpasswd
+# Require valid-user
+
+# Mencegah akses langsung ke file PHP tanpa melalui web server
+<Files "*.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Mencegah akses ke file konfigurasi
+<Files "*.sql">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Mencegah directory listing
+Options -Indexes 

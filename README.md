@@ -1,6 +1,6 @@
-# Sistem Manajemen Kost
+# Kost Manager
 
-Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
+Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, kamar, tagihan, dan pembayaran. Aplikasi terdiri dari halaman depan (frontend) untuk pengunjung dan halaman admin untuk pengelolaan data.
 
 ## Fitur Utama
 
@@ -112,9 +112,28 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 
 4. **Akses Aplikasi**
    - Buka web browser
-   - Akses `http://localhost/app_kost/`
+   - Akses `http://localhost/app_kost/` untuk halaman depan
+   - Akses `http://localhost/app_kost/admin/` untuk halaman admin (akan redirect ke login)
+   - Login dengan kredensial default:
+     - Username: `admin`
+     - Password: `admin123`
 
 ## Penggunaan
+
+### Halaman Depan (Frontend)
+- **Kamar Tersedia**: Menampilkan semua kamar dengan status tersedia/terisi dan harga sewa
+- **Sebentar Lagi Bayar**: Menampilkan penghuni yang akan jatuh tempo dalam 7 hari ke depan
+- **Terlambat Bayar**: Menampilkan penghuni yang terlambat membayar tagihan
+- **Statistik Kost**: Menampilkan total kamar, kamar tersedia, penghuni aktif, dan pendapatan/bulan
+- **Kontak**: Informasi kontak untuk pemesanan kamar
+
+### Halaman Admin
+- **Login Admin**: Sistem autentikasi untuk mengakses halaman admin
+- **Dashboard Admin**: Menampilkan statistik dan informasi yang sama dengan halaman depan plus menu admin
+- **Generate Tagihan**: Fitur untuk menggenerate tagihan bulanan otomatis
+- **Aksi Cepat**: Tombol untuk akses cepat ke fitur utama
+- **Kelola Admin**: Fitur untuk super admin mengelola akun admin lainnya
+- **Level Akses**: Super Admin dan Admin dengan hak akses berbeda
 
 ### Dashboard
 - Melihat statistik total kamar, penghuni aktif, kamar tersedia
@@ -176,10 +195,13 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 
 ## Fitur Keamanan
 
-- Validasi input form
-- Escape string untuk mencegah SQL injection
-- Konfirmasi sebelum menghapus data
-- Session management
+- **Sistem Login Admin**: Autentikasi untuk mengakses halaman admin
+- **Password Hashing**: Password dienkripsi menggunakan bcrypt
+- **Session Management**: Session untuk menjaga status login admin
+- **Level Akses**: Super Admin dan Admin dengan hak akses berbeda
+- **Validasi Input**: Validasi input form
+- **SQL Injection Protection**: Escape string untuk mencegah SQL injection
+- **Konfirmasi Hapus**: Konfirmasi sebelum menghapus data
 
 ## Struktur File
 
@@ -188,16 +210,24 @@ app_kost/
 ├── database/
 │   ├── config.php          # Konfigurasi database
 │   └── db_kost.sql         # File SQL database
-├── index.php               # Dashboard utama
-├── penghuni.php            # Manajemen data penghuni
-├── kamar.php               # Manajemen data kamar
-├── barang.php              # Manajemen data barang
-├── relasi_kamar.php        # Manajemen relasi kamar-penghuni
-├── barang_bawaan.php       # Manajemen barang bawaan
-├── tagihan.php             # Manajemen tagihan
-├── pembayaran.php          # Manajemen pembayaran
-├── pindah_kamar.php        # Pindah kamar & keluar kost
-├── laporan.php             # Halaman laporan
+├── index.php               # Halaman depan (frontend)
+├── admin/                  # Folder halaman admin
+│   ├── index.php           # Dashboard admin
+│   ├── login.php           # Halaman login admin
+│   ├── logout.php          # Halaman logout admin
+│   ├── auth_check.php      # File pengecekan autentikasi
+│   ├── manage_admin.php    # Kelola admin (super admin only)
+│   ├── index.html          # Redirect file
+│   ├── .htaccess           # Keamanan folder admin
+│   ├── penghuni.php        # Manajemen data penghuni
+│   ├── kamar.php           # Manajemen data kamar
+│   ├── barang.php          # Manajemen data barang
+│   ├── relasi_kamar.php    # Relasi kamar-penghuni
+│   ├── barang_bawaan.php   # Barang bawaan penghuni
+│   ├── tagihan.php         # Manajemen tagihan
+│   ├── pembayaran.php      # Manajemen pembayaran
+│   ├── pindah_kamar.php    # Pindah kamar & keluar kost
+│   └── laporan.php         # Laporan dan statistik
 └── README.md               # Dokumentasi
 ```
 

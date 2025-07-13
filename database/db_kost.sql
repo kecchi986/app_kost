@@ -137,4 +137,22 @@ INSERT INTO tb_bayar (id_tagihan, jml_bayar, status, tgl_bayar, keterangan) VALU
 (1, 500000, 'Cicil', '2024-01-15', 'Cicilan pertama'),
 (1, 450000, 'Lunas', '2024-01-20', 'Pelunasan'),
 (2, 880000, 'Lunas', '2024-01-20', 'Bayar lunas'),
-(3, 300000, 'Cicil', '2024-02-01', 'Cicilan pertama Februari'); 
+(3, 300000, 'Cicil', '2024-02-01', 'Cicilan pertama Februari');
+
+-- Tabel untuk admin
+CREATE TABLE IF NOT EXISTS tb_admin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    nama VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    level ENUM('super_admin', 'admin') DEFAULT 'admin',
+    status ENUM('aktif', 'nonaktif') DEFAULT 'aktif',
+    last_login TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Insert admin default (password: admin123)
+INSERT INTO tb_admin (username, password, nama, email, level) VALUES 
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin@kostmanager.com', 'super_admin'); 
