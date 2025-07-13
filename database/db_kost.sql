@@ -71,6 +71,19 @@ CREATE TABLE IF NOT EXISTS tb_tagihan (
     FOREIGN KEY (id_kmr_penghuni) REFERENCES tb_kmr_penghuni(id) ON DELETE CASCADE
 );
 
+-- Tabel tb_bayar (pembayaran cicilan)
+CREATE TABLE IF NOT EXISTS tb_bayar (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_tagihan INT NOT NULL,
+    jml_bayar DECIMAL(10,2) NOT NULL,
+    status ENUM('Cicil', 'Lunas') DEFAULT 'Cicil',
+    tgl_bayar DATE NOT NULL,
+    keterangan TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_tagihan) REFERENCES tb_tagihan(id) ON DELETE CASCADE
+);
+
 -- Insert data contoh untuk kamar
 INSERT INTO tb_kamar (nomor, harga) VALUES 
 ('A1', 800000),
@@ -117,4 +130,11 @@ INSERT INTO tb_tagihan (bulan, id_kmr_penghuni, jml_tagihan) VALUES
 ('2024-01', 2, 880000), -- Siti Nurhaliza: 800000 (kamar) + 80000 (WiFi+Air)
 ('2024-02', 1, 950000), -- Ahmad Rizki Februari
 ('2024-02', 2, 880000), -- Siti Nurhaliza Februari
-('2024-02', 3, 1025000); -- Budi Santoso: 900000 (kamar) + 125000 (WiFi+Listrik+Kebersihan) 
+('2024-02', 3, 1025000); -- Budi Santoso: 900000 (kamar) + 125000 (WiFi+Listrik+Kebersihan)
+
+-- Insert data contoh untuk pembayaran
+INSERT INTO tb_bayar (id_tagihan, jml_bayar, status, tgl_bayar, keterangan) VALUES 
+(1, 500000, 'Cicil', '2024-01-15', 'Cicilan pertama'),
+(1, 450000, 'Lunas', '2024-01-20', 'Pelunasan'),
+(2, 880000, 'Lunas', '2024-01-20', 'Bayar lunas'),
+(3, 300000, 'Cicil', '2024-02-01', 'Cicilan pertama Februari'); 

@@ -11,6 +11,8 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Relasi Kamar-Penghuni**: Kelola data penghuni yang menempati kamar
 - **Barang Bawaan**: Kelola barang yang dibawa/digunakan penghuni
 - **Sistem Tagihan**: Generate dan kelola tagihan bulanan otomatis
+- **Sistem Pembayaran**: Kelola pembayaran cicilan dan lunas
+- **Pindah Kamar**: Kelola perpindahan kamar dan keluar kost
 - **Laporan**: Laporan keuangan dan statistik kost
 - **Interface Modern**: Desain responsif dengan Bootstrap 5
 
@@ -64,6 +66,16 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - `jml_tagihan` (DECIMAL 10,2) - Total tagihan (sewa + barang)
 - `status_bayar` (ENUM) - Belum Bayar/Sudah Bayar
 - `tgl_bayar` (DATE, NULL) - Tanggal pembayaran
+- `created_at` (TIMESTAMP)
+- `updated_at` (TIMESTAMP)
+
+### Tabel tb_bayar
+- `id` (Primary Key, Auto Increment)
+- `id_tagihan` (INT, Foreign Key) - ID tagihan
+- `jml_bayar` (DECIMAL 10,2) - Jumlah pembayaran
+- `status` (ENUM) - Cicil/Lunas
+- `tgl_bayar` (DATE) - Tanggal pembayaran
+- `keterangan` (TEXT, NULL) - Keterangan pembayaran
 - `created_at` (TIMESTAMP)
 - `updated_at` (TIMESTAMP)
 
@@ -143,6 +155,20 @@ Aplikasi web berbasis PHP native untuk mengelola data kost, penghuni, dan kamar.
 - **Status Pembayaran**: Update status Belum Bayar/Sudah Bayar
 - **Riwayat Tagihan**: Melihat semua tagihan per bulan
 
+### Sistem Pembayaran
+- **Tambah Pembayaran**: Catat pembayaran cicilan atau lunas
+- **Edit Pembayaran**: Ubah data pembayaran yang sudah ada
+- **Hapus Pembayaran**: Hapus data pembayaran
+- **Status Pembayaran**: Cicil atau Lunas
+- **Riwayat Pembayaran**: Melihat semua pembayaran per tagihan
+
+### Pindah Kamar & Keluar Kost
+- **Pindah Kamar**: Proses perpindahan penghuni ke kamar lain
+- **Keluar Kost**: Proses penghuni keluar dari kost
+- **Riwayat Pindah**: Melihat riwayat perpindahan kamar
+- **Otomatis Update**: Update tgl_keluar di tb_kmr_penghuni dan tb_penghuni
+- **Hapus Barang Bawaan**: Otomatis hapus barang bawaan saat keluar kost
+
 ### Laporan
 - Laporan penghuni (aktif dan keluar)
 - Laporan kamar dengan status
@@ -169,6 +195,8 @@ app_kost/
 ├── relasi_kamar.php        # Manajemen relasi kamar-penghuni
 ├── barang_bawaan.php       # Manajemen barang bawaan
 ├── tagihan.php             # Manajemen tagihan
+├── pembayaran.php          # Manajemen pembayaran
+├── pindah_kamar.php        # Pindah kamar & keluar kost
 ├── laporan.php             # Halaman laporan
 └── README.md               # Dokumentasi
 ```

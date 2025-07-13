@@ -189,6 +189,12 @@ if (isset($_GET['hapus'])) {
                         <a class="nav-link active" href="tagihan.php">
                             <i class="fas fa-file-invoice me-2"></i> Tagihan
                         </a>
+                        <a class="nav-link" href="pembayaran.php">
+                            <i class="fas fa-money-bill-wave me-2"></i> Pembayaran
+                        </a>
+                        <a class="nav-link" href="pindah_kamar.php">
+                            <i class="fas fa-exchange-alt me-2"></i> Pindah Kamar
+                        </a>
                         <a class="nav-link" href="laporan.php">
                             <i class="fas fa-chart-bar me-2"></i> Laporan
                         </a>
